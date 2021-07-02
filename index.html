@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zapcha</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+    <div class="root">
+        <div class="main card-1">
+            <div class="top">
+                <span class="select-line">Select all images with</span>
+                <br>
+                <span class="title"><strong>Enemy Combatants</strong></span>
+
+            </div>
+
+            <div id="container" class="image-boxes">
+            </div>
+        </div>
+
+        <button onclick="getImage('http://172.24.252.112:5000/frame')">Get image from server </button>
+
+    </div>
+</body>
+<script src="main.js"></script>
+
+</html>
