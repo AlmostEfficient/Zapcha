@@ -7,9 +7,21 @@
     padding: 10px;
 }
 
-button {
+.submit {
     margin: 10px;
+    background: rgb(89, 156, 243);
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    position: relative;
+    top: 65%;
+    left: 75%;
 }
+
+.submit:hover{    
+    background-color: #4CAF50; 
+}
+
 
 .main {
     width: 300px;
