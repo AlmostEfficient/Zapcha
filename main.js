@@ -7,59 +7,49 @@ function displayImage(base64) {
 
 
 // var endpoint = "http://172.24.252.112:5000/frame"
-var endpoint = "http://192.168.0.72:5000/frame"
-var selectedImages = [];
+var endpoint = "http://192.168.0.72:5000"
+var selectedImages = {};
 
 function getImage(endpoint) {
     fetch(endpoint)
         .then(response => response.json())
         .then(data => {
             var container = document.getElementById("container")
-
+            let all_string = ""
             data.forEach((element, idx) => {
-
+                selectedImages[idx] = false;
                 if (idx % 3 == 0) {
                     if (idx != 0) {
-                        container.innerHTML += "</div>"
+                        all_string += "</div><div style='margin-top:-250px !important' class='image-row'>"
+                    }else{
+                        all_string += "<div class='image-row'>"
+
                     }
-                    container.innerHTML += "<div class='image-row'>"
                 }
-                container.innerHTML += `<img class='image'src="data:image/jpg;base64,${element}">`
+                all_string += `<img onclick='onImageClick(${idx})' id='image-${idx}' class='image'src="data:image/jpg;base64,${element}">`
             });
+            container.innerHTML += all_string;
             console.log("Added images from the server")
         });
-    // setEvents()
 }
 
-getImage(endpoint)
-
-function setEvents(){
-    images = document.getElementsByClassName('image')
-    images.forEach(element => {
-        element.addEventListener("click", selectImage(this.id))
-    });
-    console.log("Added on click events.")
-}
-
-// Set in memory variable to indicate which images have been selected
-function selectImage(id){
-    // var id = this.id;
-    if (selectedImages.includes(id)){
-        var index = selectedImages.indexOf(id)
-        console.log(`Unselected ${selectedImages[index]}`)
-        selectedImages.pop(index)
-    }
-    else{
-        selectedImages.push(id)
-        console.log(`Selected ${selectedImages[index]}`)
-    }
+getImage(endpoint+'/frame')
+var selected = [];
+function onImageClick(id){
+    selectedImages[id] = !selectedImages[id];
+    document.getElementById('image-'+id.toString()).style = "border: " + (selectedImages[id]==true ? "rgb(89, 156, 243)" : "white") +" solid 2px;";
+    console.log(`Clicked ${id}`)
 }
 
 function submit(){
+    console.log("Sending target data to server")
     payload = JSON.stringify(selectedImages)
-    postData(endpoint, payload)
+    postData(endpoint+'/shoot', payload)
     .then(data => {
-        console.log(data); // JSON data parsed by `data.json()` call
+
+        data.json().then(result=>{
+            console.log(result.response);
+        }); // JSON data parsed by `data.json()` call
     });
 }
 
@@ -78,5 +68,5 @@ async function postData(url = "", data = {}) {
 		referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
 		body: JSON.stringify(data), // body data type must match "Content-Type" header
 	});
-	return response.json(); // parses JSON response into native JavaScript objects
+	return response; 
 }

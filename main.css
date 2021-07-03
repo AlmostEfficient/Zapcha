@@ -14,10 +14,16 @@
     color: white;
     padding: 5px 10px;
     position: relative;
-    top: 65%;
+    top: -20%;
     left: 75%;
 }
 
+.image:hover{
+    border: orange solid 2px;
+}
+.image{
+    z-index:1000 !important;
+}
 .submit:hover{    
     background-color: #4CAF50; 
 }
@@ -25,7 +31,7 @@
 
 .main {
     width: 300px;
-    height: 400px;
+    height: 390px;
     background: white;
 }
 
@@ -74,14 +80,17 @@
 }
 
 .image {
-    margin: 5px 5px 5px 5px;
+    margin: 5px 5px 5px -3px;
     width: 30%;
+    border: white solid 2px;
     height: 50%;
 }
 
 .image-row {
     display: inline-flex;
-    height: 300px;
+    height: 185px;
     width: 300px;
-    margin-top: -350px !important;
+    margin-left: 10px;
+    margin-top: 0px !important;
 }
+
