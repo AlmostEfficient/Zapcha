@@ -4,74 +4,96 @@ import json
 from flask import jsonify
 from flask_cors import CORS
 from flask import Flask
-from flask import request
+from flask import request, send_file
 import serial
-import time 
+import time
+import io
+
+from facedetserver import FaceDetectServer
+from datastore import Datastore
+from cannon import CannonController
 
 app = Flask(__name__)
-
-cap = cv2.VideoCapture(0)
-
-if(not cap):
-    print("camera unable to open")
-split_h = 3
-split_w = 3
+datastore = Datastore()
+facedet = FaceDetectServer(datastore)
+cannon = CannonController(datastore)
 
 @app.route('/')
 def main():
     return "hi"
 @app.route('/frame')
 def frame():
-    global cap
-    ret, frame = cap.read()
-    return_list = []
-    if(ret):
-        for i in range(split_w):
-            for j in range(split_h):
-                cropped = frame[i*(frame.shape[0]//split_h):(i+1)*(frame.shape[0]//split_h),j*(frame.shape[1]//split_w):(j+1)*(frame.shape[1]//split_w)]
-                frame_str = cv2.imencode('.jpg', cropped)[1]
-                frame_str = base64.b64encode(frame_str)
-                return_list.append(str(frame_str)[2:].strip("'"))
-    if(not ret):
-        print("error")
-        return "error"
-    return jsonify(return_list)
+    with datastore.mutex:
+        img = datastore.data.get('img')
+    if img is None:
+        return 404
+    return send_file(io.BytesIO(img), mimetype='image/jpeg')
+
+def check_intersect_squares(guess, face):
+    # find the overlap
+    dx = min(guess['x'] + guess['w'], face['x'] + face['w']) - max(guess['x'], face['x'])
+    dy = min(guess['y'] + guess['h'], face['y'] + face['h']) - max(guess['y'], face['y'])
+    if dx < 0 or dy < 0:
+        return False  # no match
+    if face['w'] > guess['w']:
+        # handle when face is larger than guess size
+        comp_w = guess['w']
+    else:
+        comp_w = face['w']
+
+    if face['h'] > guess['h']:
+        # handle when face is larger than guess size
+        comp_h = guess['h']
+    else:
+        comp_h = face['h']
+
+    return (dx > comp_w / 2) and (dy > comp_h / 2)
 
 
-ser = serial.Serial('/dev/ttyACM1', baudrate = 9600, timeout = 1)
+def check_user_guess(guess, faces):
+    """Check user guess
 
-def setValues():
-    while True:
-        print('writing')
-        ser.write(b'100')
-        time.sleep(1)
-        ser.write(b'0\n')
-        time.sleep(1)
+    args:
+    - guess: dict {x: int, y: int}
+    - faces: array of dicts
+        {b'cnf': int, b'h': int, b'w': int, b'x': int, b'y': int}
+    """
+    guess_pixels = {
+        'x': guess['x'] * datastore.IMAGE_WIDTH / 3,
+        'y': guess['y'] * datastore.IMAGE_HEIGHT / 3,
+        'w': datastore.IMAGE_WIDTH / 3,
+        'h': datastore.IMAGE_HEIGHT / 3,
+    }
+
+    for face in faces:
+        if check_intersect_squares(guess_pixels, face):
+            return True
+    return False
+
+
 
 @app.route('/shoot', methods=['POST'])
 def shoot():
     if request.method =='POST':
-        payload = request.get_json()
-        data = json.loads(payload) #This is a dict
-        targets = [] # This is a list of numbers that correspond to the grid (0-8)
-        for item in data:
-            if data[item] is True:
-                targets.append(item)
-        targetString= (', ').join(targets)
-        
-        
-        return jsonify({"response":'Shooting points '+ targetString}), 200
+        with datastore.mutex:
+            faces = datastore.get('faces', [])
+        guess = request.get_json()
+        # run calculations here
+        correct = check_user_guess(guess, faces)
+        if correct:
+            datastore.shoot_queue.push(guess)
+            return {'success': False}
+        else:
+            return {'success': True}
     else:
         return 403
 
 if __name__=="__main__":
     CORS(app)
+    facedet.start()
+    cannon.start()
     app.run("0.0.0.0")
     print("Running server")
-    cap.release()
-
-coordinates = {0: "1,1", 1:"0,1", "2":"1,1", 3:"1,1", 4:"1,0", }
-
-coordinates.get(0)
+    # cap.release()
 
 
