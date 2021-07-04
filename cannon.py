@@ -63,8 +63,9 @@ class CannonController(threading.Thread):
             chosen = most_frequent(shoot_options)
             servo_coords = guess_to_servo_coords(chosen)
 
-            self.serial.write('FIRE')
-            self.serial.write(struct.pack(servo_coords['x']))
-            self.serial.write(struct.pack(servo_coords['y']))
+            self.serial.write('{:03d},{:03d}\n'.format(servo_coords['x'], servo_coords['y']))
+            # self.serial.write('FIRE')
+            # self.serial.write(struct.pack(servo_coords['x']))
+            # self.serial.write(struct.pack(servo_coords['y']))
 
             print(self.serial.read_all())
