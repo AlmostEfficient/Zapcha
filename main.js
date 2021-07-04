@@ -7,13 +7,14 @@ function displayImage(base64) {
 
 
 // var endpoint = "http://172.24.252.112:5000/frame"
-var endpoint = "http://192.168.0.72:5000"
+var endpoint = "http://172.24.252.146:5000"
 var selectedImages = {};
 
 function getImage(endpoint) {
     fetch(endpoint)
         .then(response => response.json())
         .then(data => {
+            data = data['data']
             var container = document.getElementById("container")
             let all_string = ""
             data.forEach((element, idx) => {
@@ -49,6 +50,7 @@ function submit(){
 
         data.json().then(result=>{
             console.log(result.response);
+            alert("Shooting target")
         }); // JSON data parsed by `data.json()` call
     });
 }

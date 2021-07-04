@@ -34,14 +34,14 @@ def most_frequent(items):
 
 def guess_to_servo_coords(guess, config):
     return {
-        'x': (config.SERVO_X_MAX - config.SERVO_X_MIN) / 3 * guess['x'],
-        'y': (config.SERVO_Y_MAX - config.SERVO_Y_MIN) / 3 * guess['y']
+        'x': (config.SERVO_X_MAX - config.SERVO_X_MIN) / 3 * guess['x'] + config.SERVO_X_MIN,
+        'y': (config.SERVO_Y_MAX - config.SERVO_Y_MIN) / 3 * guess['y'] + config.SERVO_Y_MIN,
     }
 
 
 
 class CannonController(threading.Thread):
-    def __init__(self, datastore, tty='/dev/ttyACM1', baudrate=9600, timeout=1):
+    def __init__(self, datastore, tty='/dev/ttyACM0', baudrate=9600, timeout=1):
         self.datastore = datastore
         self.tty = tty
         self.baudrate = baudrate
@@ -60,9 +60,9 @@ class CannonController(threading.Thread):
             if len(shoot_options) == 0:
                 continue
             chosen = most_frequent(shoot_options)
-            servo_coords = guess_to_servo_coords(chosen)
+            servo_coords = guess_to_servo_coords(chosen, self.datastore)
             print('Firing coords', servo_coords)
-            self.serial.write('{:03d},{:03d}\n'.format(servo_coords['x'], servo_coords['y']))
+            self.serial.write('{:03d},{:03d}\n'.format(int(servo_coords['x']), int(servo_coords['y'])).encode())
             # self.serial.write('FIRE')
             # self.serial.write(struct.pack(servo_coords['x']))
             # self.serial.write(struct.pack(servo_coords['y']))

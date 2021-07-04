@@ -59,4 +59,4 @@ class FaceDetectServer(threading.Thread):
                     # print('Matches -> ', meta)
                     # print(magic.from_buffer(img))
                     with self.datastore.mutex:
-                        self.datastore.data.update({'img': json.dumps(return_list), 'faces': faces})
+                        self.datastore.data.update({'img': {'data':return_list}, 'faces': faces})

@@ -50,21 +50,22 @@ def frame():
 
 def check_intersect_squares(guess, face):
     # find the overlap
-    dx = min(guess['x'] + guess['w'], face['x'] + face['w']) - max(guess['x'], face['x'])
-    dy = min(guess['y'] + guess['h'], face['y'] + face['h']) - max(guess['y'], face['y'])
+    print(guess, face)
+    dx = min(guess['x'] + guess['w'], face[b'x'] + face[b'w']) - max(guess['x'], face[b'x'])
+    dy = min(guess['y'] + guess['h'], face[b'y'] + face[b'h']) - max(guess['y'], face[b'y'])
     if dx < 0 or dy < 0:
         return False  # no match
-    if face['w'] > guess['w']:
+    if face[b'w'] > guess['w']:
         # handle when face is larger than guess size
         comp_w = guess['w']
     else:
-        comp_w = face['w']
+        comp_w = face[b'w']
 
-    if face['h'] > guess['h']:
+    if face[b'h'] > guess['h']:
         # handle when face is larger than guess size
         comp_h = guess['h']
     else:
-        comp_h = face['h']
+        comp_h = face[b'h']
 
     return (dx > comp_w / 2) and (dy > comp_h / 2)
 
@@ -95,12 +96,30 @@ def check_user_guess(guess, faces):
 def shoot():
     if request.method =='POST':
         with datastore.mutex:
-            faces = datastore.get('faces', [])
+            faces = datastore.data.get('faces', [])
         guess = request.get_json()
+        guess = json.loads(guess)
+        guess = list(filter(lambda x: x[1] == True, guess.items()))[0][0]
+        
+        CONVERSION = {
+            0: {'x': 0, 'y': 2},
+            1: {'x': 1, 'y': 2},
+            2: {'x': 2, 'y': 2},
+            3: {'x': 0, 'y': 1},
+            4: {'x': 1, 'y': 1},
+            5: {'x': 2, 'y': 1},
+            6: {'x': 0, 'y': 0},
+            7: {'x': 1, 'y': 0},
+            8: {'x': 2, 'y': 0},
+        }
+
+        guess = CONVERSION[int(guess)]
+
         # run calculations here
         correct = check_user_guess(guess, faces)
+        correct=True
         if correct:
-            datastore.shoot_queue.push(guess)
+            datastore.shoot_queue.add(guess)
             return {'success': False}
         else:
             return {'success': True}
