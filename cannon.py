@@ -1,6 +1,6 @@
 import serial
 import threading
-import struct
+import time
 
 from collections import defaultdict
 
@@ -55,14 +55,14 @@ class CannonController(threading.Thread):
         self.serial = serial.Serial(self.tty, baudrate=self.baudrate, timeout=self.timeout)
 
         while True:
-            self.datastore.tick.wait()
+            time.sleep(1)
 
             shoot_options = self.shoot_queue.get_all()
             if len(shoot_options) == 0:
                 continue
             chosen = most_frequent(shoot_options)
             servo_coords = guess_to_servo_coords(chosen)
-
+            print('Firing coords', servo_coords)
             self.serial.write('{:03d},{:03d}\n'.format(servo_coords['x'], servo_coords['y']))
             # self.serial.write('FIRE')
             # self.serial.write(struct.pack(servo_coords['x']))
