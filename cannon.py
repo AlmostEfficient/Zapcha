@@ -43,7 +43,6 @@ def guess_to_servo_coords(guess, config):
 class CannonController(threading.Thread):
     def __init__(self, datastore, tty='/dev/ttyACM1', baudrate=9600, timeout=1):
         self.datastore = datastore
-        self.shoot_queue = ItemStore()
         self.tty = tty
         self.baudrate = baudrate
         self.timeout = timeout
@@ -57,7 +56,7 @@ class CannonController(threading.Thread):
         while True:
             time.sleep(1)
 
-            shoot_options = self.shoot_queue.get_all()
+            shoot_options = self.datastore.shoot_queue.get_all()
             if len(shoot_options) == 0:
                 continue
             chosen = most_frequent(shoot_options)

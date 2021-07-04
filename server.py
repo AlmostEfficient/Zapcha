@@ -24,10 +24,29 @@ def main():
 @app.route('/frame')
 def frame():
     with datastore.mutex:
-        img = datastore.data.get('img')
-    if img is None:
+        img_split = datastore.data.get('img')
+    if img_split is None:
         return 404
-    return send_file(io.BytesIO(img), mimetype='image/jpeg')
+    return img_split
+
+# def frame():
+#     global cap
+#     ret, frame = cap.read()
+#     return_list = []
+#     if(ret):
+#         for i in range(split_w):
+#             for j in range(split_h):
+#                 cropped = frame[i*(frame.shape[0]//split_h):(i+1)*(frame.shape[0]//split_h),j*(frame.shape[1]//split_w):(j+1)*(frame.shape[1]//split_w)]
+#                 frame_str = cv2.imencode('.jpg', cropped)[1]
+#                 frame_str = base64.b64encode(frame_str)
+#                 return_list.append(str(frame_str)[2:].strip("'"))
+#     if(not ret):
+#         print("error")
+#         return "error"
+#     return jsonify(return_list)
+#     if img is None:
+#         return 404
+#     return send_file(io.BytesIO(img), mimetype='image/jpeg')
 
 def check_intersect_squares(guess, face):
     # find the overlap

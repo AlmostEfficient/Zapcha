@@ -1,5 +1,20 @@
 import threading
 import queue
+import threading
+
+class ItemStore(object):
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.items = []
+
+    def add(self, item):
+        with self.lock:
+            self.items.append(item)
+
+    def get_all(self):
+        with self.lock:
+            items, self.items = self.items, []
+        return items
 
 class Datastore:
     IMAGE_WIDTH = 640
@@ -16,4 +31,4 @@ class Datastore:
     def __init__(self, *args, **kwargs):
         self.mutex = threading.Lock()
         self.data = dict()
-        self.shoot_queue = queue.Queue()
+        shoot_queue = ItemStore()
