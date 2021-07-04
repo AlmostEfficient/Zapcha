@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zapcha</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+    <script defer src="face-api.min.js"></script>
+    <script defer src="script.js"></script>
+
+    <style>
+        /* #my_camera{
+            width: 320px;
+            height: 240px;
+            border: 1px solid black;
+        }
+        .main {
+            width: 80%;
+            height: 80%;
+            background: white;
+        } */
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            position: absolute;
+        }
+        .title{
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            top:10%;
+            font-family: Arial, sans-serif;
+            background: rgb(89, 156, 243);
+            color:white;
+            padding: 20px 10px;
+        }
+        .footer{
+            font-size:12px;
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            /* background-color; */
+            text-align: center;
+        }
+        .tiny{
+            font-size:18px;
+            position: relative;
+            top: -10px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">Trained by Zapcha<span class="tiny">*</span>! Keep those pesky humans away! </h1>
+    <video id="video" width="720" height="560" autoplay muted></video>
+    <span class="footer" >*Not actually trained by Zapcha.</span>
+</body>
+</html>
